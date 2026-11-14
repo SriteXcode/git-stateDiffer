@@ -1,0 +1,106 @@
+{
+      "name": "git-stateDiffer",
+      "displayName": "Git State & Revision Differ",
+      "description": "Differentiate Pushed, Committed (unpushed), and Modified code with rich line and file diffing.",
+      "version": "0.1.0",
+      "publisher": "SriteX",
+      "license": "MIT",
+      "engines": {
+        "vscode": "^1.90.0"
+      },
+      "categories": ["SCM Providers", "Other"],
+      "main": "./dist/extension.js",
+      "activationEvents": ["onStartupFinished"],
+      "scripts": {
+        "vscode:prepublish": "npm run package",
+        "compile": "node ./esbuild.js",
+        "watch": "node ./esbuild.js --watch",
+        "package": "node ./esbuild.js --production",
+        "check-types": "tsc --noEmit",
+        "test": "node -e \"require('esbuild').buildSync({entryPoints:['test/porcelainParser.test.ts'],outfile:'dist/test.js',bundle:true,platform:'node'}); require('./dist/test.js');\""
+      },
+      "contributes": {
+        "commands": [
+          {
+            "command": "gitStateDiffer.compareFileWithCommit",
+            "title": "Git State: Compare File with Commit...",
+            "icon": "$(git-compare)"
+          },
+          {
+            "command": "gitStateDiffer.compareLineWithCommit",
+            "title": "Git State: Compare Selected Line(s) with Commit...",
+            "icon": "$(diff)"
+          },
+          {
+            "command": "gitStateDiffer.refresh",
+            "title": "Git State: Refresh State",
+            "icon": "$(refresh)"
+          }
+        ],
+        "menus": {
+          "editor/title": [
+            {
+              "command": "gitStateDiffer.compareFileWithCommit",
+              "group": "navigation",
+              "when": "editorTextFocus"
+            }
+          ],
+          "editor/context": [
+            {
+              "command": "gitStateDiffer.compareFileWithCommit",
+              "group": "git_state@1"
+            },
+            {
+              "command": "gitStateDiffer.compareLineWithCommit",
+              "group": "git_state@2"
+            }
+          ]
+        },
+        "configuration": {
+          "title": "Git State & Revision Differ",
+          "properties": {
+            "gitStateDiffer.decorations.showUnpushed": {
+              "type": "boolean",
+              "default": true,
+              "description": "Show gutter indicators for committed lines that are not yet pushed."
+            },
+            "gitStateDiffer.decorations.showModified": {
+              "type": "boolean",
+              "default": true,
+              "description": "Show gutter indicators for uncommitted working tree modifications."
+            },
+            "gitStateDiffer.decorations.showPushed": {
+              "type": "boolean",
+              "default": false,
+              "description": "Show gutter indicators for pushed lines (off by default to avoid clutter)."
+            },
+            "gitStateDiffer.decorations.unpushedColor": {
+              "type": "string",
+              "default": "#a855f7",
+              "description": "Gutter color for unpushed committed lines (hex color or CSS color)."
+            },
+            "gitStateDiffer.decorations.modifiedColor": {
+              "type": "string",
+              "default": "#eab308",
+              "description": "Gutter color for modified lines."
+            },
+            "gitStateDiffer.decorations.pushedColor": {
+              "type": "string",
+              "default": "#22c55e",
+              "description": "Gutter color for pushed lines."
+            },
+            "gitStateDiffer.defaultDiffCommit": {
+              "type": "string",
+              "default": "HEAD",
+              "description": "Default target commit to diff against (e.g., HEAD, HEAD~1, @{u})."
+            }
+          }
+        }
+      },
+      "devDependencies": {
+        "@types/node": "^20.0.0",
+        "@types/vscode": "^1.90.0",
+        "esbuild": "^0.23.0",
+        "typescript": "^5.4.0"
+      }
+    }

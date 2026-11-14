@@ -1,0 +1,49 @@
+name: Publish Extension
+
+on:
+  push:
+    tags:
+      - 'v*' # Triggers whenever you push a version tag, e.g. v0.1.1, v1.0.0
+  workflow_dispatch: # Allows manual one-click trigger from GitHub Actions tab
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Type Check & Unit Tests
+        run: |
+          npm run check-types
+          npm test
+
+      - name: Build Production Bundle
+        run: npm run package
+
+      - name: Package VSIX
+        run: npx @vscode/vsce package --allow-missing-repository
+
+      - name: Upload VSIX Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-vsix
+          path: '*.vsix'
+
+      - name: Publish to VS Code Marketplace
+        if: env.VSCE_PAT != ''
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: npx @vscode/vsce publish -p ${{ secrets.VSCE_PAT }}
